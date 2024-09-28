@@ -48,8 +48,8 @@ Use `dplyr` functions to create a table with the number of candidates in each ty
 ```{r}
 library(tidyverse)
 fb_ads <- read_csv("data/fb_ads.csv")
-incumbency_table <- fb_ads %>%
-  group_by(incumbency) %>%
+incumbency_table <- fb_ads |>
+  group_by(incumbency) |>
   summarize(num_candidates = n_distinct(cand_name))
 knitr::kable(incumbency_table)
 ```
@@ -73,7 +73,16 @@ In the writeup, describe which type of candidate sponsored the most promoting ad
 
 ## Answer 2
 
-
+```{r}
+filtered_fb_ads <- fb_ads |>
+  filter(office %in% c("US House", "US Senate"))
+party_incumbent_promote <- filtered_fb_ads |>
+  group_by(party, incumbency) |>
+  summarise(promote_prop = mean(ad_tone_promote, na.rm = TRUE))
+knitr::kable(party_incumbent_promote, digits = 3, 
+             col.names = c("Party", "Incumbency", "Promote Proportion"))
+```
+With a promote proportion of 0.854, Democratic incumbents sponsored the most promoting ads on average.
 
 \newpage
 
@@ -88,7 +97,18 @@ Create a histogram of this variable for just the US House races. Save the ggplot
 
 ## Answer 3
 
+```{r}
+fb_ads <- fb_ads |>
+  mutate(impressions_millions = impressions / 1e6)
+plot_q3 <- fb_ads |>
+  filter(office == "US House") |>
+  ggplot(aes(
+    x = impressions_millions)) +
+  geom_histogram()
+plot_q3
 
+```
+The histogram is right-skewed meaning that there a more candidates that have lower impressions, specifically less than 10 million, and that frequency decreases as impressions increase.
 
 \newpage
 
